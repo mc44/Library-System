@@ -17,13 +17,13 @@ def setupDB():
     """)
     cur.execute("""
             CREATE TABLE IF NOT EXISTS "Trip" (
+                Trip_ID		        INTEGER NOT NULL,
+                Trip_Name		    VARCHAR(50) NOT NULL,
                 Start_date  		DATE NOT NULL,
                 End_date		    DATE NOT NULL,
-                Trip_ID		        INTEGER NOT NULL,
-                Total_expenditure	DECIMAL(18,2),
-                Trip_Name		    VARCHAR(50) NOT NULL,
-                Notes			    TEXT,
                 Duration		    VARCHAR,
+                Notes			    TEXT,
+                Total_expenditure	DECIMAL(18,2),
                 PRIMARY KEY(Trip_ID)
             );
         """)
@@ -40,9 +40,10 @@ def setupDB():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "Events" (
             Events_ID    	INTEGER NOT NULL,
+            Name            VARCHAR NOT NULL,
+            Location	    VARCHAR(100) NOT NULL,
             Start_DandT	    DATETIME NOT NULL,
             End_DandT 	    DATETIME NOT NULL,
-            Location	    VARCHAR(100) NOT NULL,
             Type		    VARCHAR(50) NOT NULL,
             Notes		    TEXT,
             Expenses	    DECIMAL(18,2),
@@ -53,8 +54,9 @@ def setupDB():
      """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS "Trip_Destination" (
-            Trip_ID	        INTEGER NOT NULL,
+            TripD_ID        INTEGER NOT NULL,
             Destination	    VARCHAR(100) NOT NULL,
+            Trip_ID	        INTEGER NOT NULL,
             FOREIGN KEY(Trip_ID) REFERENCES Trip(Trip_ID)
         );
     """)
