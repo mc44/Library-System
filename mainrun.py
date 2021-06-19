@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import ttk, messagebox
+
 import sqlite3
 import sqlcalls
 import functions
+
 #This is the mainrun file for the Travel-Planner, follows the following order of content:
 #setupDB -> mainscreen setup-> setup buttons,labels -> calls and executions -> eventhandling
 #Note: Functions are found in functions.py
@@ -39,7 +41,7 @@ class tkinterApp(tk.Tk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (StartPage, Page1, Page2):
+        for F in (StartPage, Page1, Page2, Page3, Page4, Page5):
             frame = F(container, self)
 
             # initializing frame of that object from
@@ -96,23 +98,22 @@ class Page1(tk.Frame):
         label = ttk.Label(self, text="Trips", font=LARGEFONT)
         label.grid(row=0, column=4, padx=10, pady=10)
 
-        # button to show frame 2 with text
-        # layout2
+        #Navigation
         button1 = ttk.Button(self, text="Main Page",
                              command=lambda: controller.show_frame(StartPage))
-
-        # button to show frame 2 with text
-        # layout2
         button2 = ttk.Button(self, text="Travelers",
                              command=lambda: controller.show_frame(Page2))
+        button3 = ttk.Button(self, text="Add Trip",
+                             command=lambda: controller.show_frame(Page5))
 
-        button1.place(relx=0.01, rely=0.45, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
+        button1.place(relx=0.01, rely=0.57, relheight=0.05, relwidth=0.2)
+        button2.place(relx=0.01, rely=0.65, relheight=0.05, relwidth=0.2)
+        button3.place(relx=0.4, rely=0.65, relheight=0.05, relwidth=0.2)
 
         # Treeview
         # building tree view
         tree_frame = tk.Frame(self)
-        tree_frame.place(relx=0.01, rely=0.035, relheight=0.4, relwidth=0.98)
+        tree_frame.place(relx=0.01, rely=0.135, relheight=0.4, relwidth=0.98)
         tree_scroll = tk.Scrollbar(tree_frame)
         tree_scroll.pack(side="right", fill="y")
         my_tree = ttk.Treeview(tree_frame, yscrollcommand=tree_scroll.set)
@@ -139,15 +140,18 @@ class Page1(tk.Frame):
         my_tree.heading("Notes", text="Notes", anchor="center")
         my_tree.heading("Total Expenditure", text="Total Expenditure", anchor="center")
 
+        wrapper1 = tk.LabelFrame(self, text="Edit")
+
+
         # Placing widgets
-        my_tree.pack(fill="both")
+        my_tree.pack(fill="x")
         tree_scroll.config(command=my_tree.yview)
 
         # Calls
         functions.filltree(my_tree, "Trip")
 
 
-# third window frame page2
+# Travelers Screen
 class Page2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -172,6 +176,7 @@ class Page2(tk.Frame):
         # using grid
         button2.grid(row=2, column=1, padx=10, pady=10)
 
+#Itinerary Screen
 class Page3(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -187,6 +192,7 @@ class Page3(tk.Frame):
         # using grid
         button1.grid(row=1, column=1, padx=10, pady=10)
 
+#Events Screen
 class Page4(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -211,6 +217,45 @@ class Page4(tk.Frame):
         # using grid
         button2.grid(row=2, column=1, padx=10, pady=10)
 
+#Add Trip
+class Page5(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = ttk.Label(self, text="Add another Trip", font=LARGEFONT)
+        label.grid(row=0, column=4, padx=10, pady=10)
+
+        # button to show frame 2 with text
+        # layout2
+        button1 = ttk.Button(self, text="Go back to Trip List",
+                             command=lambda: controller.show_frame(Page1))
+        button2 = ttk.Button(self, text="Main page",
+                             command=lambda: controller.show_frame(StartPage))
+        button1.place(relx=0.01, rely=0.67, relheight=0.05, relwidth=0.2)
+        button2.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
+
+        lab_name = ttk.Label(self, text="Name")
+        lab_std = ttk.Label(self, text="Start Date")
+        lab_etd = ttk.Label(self, text="End Date")
+        lab_duration = ttk.Label(self, text="Duration")
+        lab_notes = ttk.Label(self, text="Notes")
+
+        tb_name = ttk.Entry(self, width=15)
+        tb_duration = ttk.Entry(self, width=15)
+        tb_notes = ttk.Entry(self, width=15)
+        tb_std = tk.Entry(self)
+        tb_std.insert("end", "    /    /        ")
+        tb_std.config(fg="grey")
+
+        lab_name.place(relx=0.11, rely=0.125, relheight=0.06, relwidth=0.1)
+        lab_std.place(relx=0.095, rely=0.245, relheight=0.06, relwidth=0.1)
+        lab_etd.place(relx=0.09, rely=0.365, relheight=0.06, relwidth=0.1)
+        lab_duration.place(relx=0.1, rely=0.485, relheight=0.06, relwidth=0.1)
+        lab_notes.place(relx=0.09, rely=0.605, relheight=0.06, relwidth=0.1)
+
+        tb_name.place(relx=0.25, rely=0.125, relheight=0.08, relwidth=0.4)
+        tb_std.place(relx=0.25, rely=0.245, relheight=0.08, relwidth=0.4)
+        tb_duration.place(relx=0.25, rely=0.365, relheight=0.08, relwidth=0.4)
+        tb_notes.place(relx=0.25, rely=0.485, relheight=0.08, relwidth=0.4)
 
 # Driver Code
 app = tkinterApp()
