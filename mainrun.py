@@ -1,18 +1,21 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import ttk, messagebox
-
+from tkinter import ttk, messagebox, Text, scrolledtext
 import sqlite3
 import sqlcalls
 import functions
+import tkcalendar
+from tkcalendar import Calendar, DateEntry
 
 #This is the mainrun file for the Travel-Planner, follows the following order of content:
-#setupDB -> mainscreen setup-> setup buttons,labels -> calls and executions -> eventhandling
+#setupDB -> global variable -> mainscreen setup-> setup buttons,labels -> calls and executions -> eventhandling
 #Note: Functions are found in functions.py
 
 sqlcalls.setupDB()
 
 LARGEFONT = ("Verdana", 35)
+
+#Global Variables
 
 
 class tkinterApp(tk.Tk):
@@ -57,6 +60,13 @@ class tkinterApp(tk.Tk):
     # parameter
     def show_frame(self, cont):
         frame = self.frames[cont]
+        #if moving to page1, refresh treeview
+        if "page1" in str(frame):
+            for child in frame.winfo_children():
+                if "frame" in str(child):
+                    for chil in child.winfo_children():
+                        if "treeview" in str(chil):
+                            functions.filltree(chil, "Trip")
         frame.tkraise()
 
 
@@ -84,7 +94,7 @@ class StartPage(tk.Frame):
         # using grid
         button1.place(relx=0.01, rely=0.45, relheight=0.05, relwidth=0.2)
         button2.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
-
+        print("hello")
 
         #place here
 
@@ -148,7 +158,7 @@ class Page1(tk.Frame):
         tree_scroll.config(command=my_tree.yview)
 
         # Calls
-        functions.filltree(my_tree, "Trip")
+        #functions.filltree(my_tree, "Trip")
 
 
 # Travelers Screen
@@ -219,6 +229,19 @@ class Page4(tk.Frame):
 
 #Add Trip
 class Page5(tk.Frame):
+    def tripvalidate(self, name, start, end, dur, notes, controller):
+        if name == "" or start == "" or end == "" or dur == "" or notes == "":
+            messagebox.showinfo(parent=self, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
+            return
+        if int(dur) <= 0:
+            messagebox.showinfo(parent=self, title="Wrong Information", message="Input Propper Start and End Dates")
+            return
+        conn = sqlite3.connect("tplanner.db")
+        add = conn.execute("INSERT INTO Trip (Trip_Name, Start_Date, End_Date, Duration, Notes) VALUES ('{}','{}','{}','{}','{}')".format(name, start, end, dur, notes))
+        conn.commit()
+        conn.close()
+        controller.show_frame(Page1)
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = ttk.Label(self, text="Add another Trip", font=LARGEFONT)
@@ -228,10 +251,13 @@ class Page5(tk.Frame):
         # layout2
         button1 = ttk.Button(self, text="Go back to Trip List",
                              command=lambda: controller.show_frame(Page1))
-        button2 = ttk.Button(self, text="Main page",
-                             command=lambda: controller.show_frame(StartPage))
-        button1.place(relx=0.01, rely=0.67, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
+        button2 = ttk.Button(self, text="Submit",
+                             command=lambda: self.tripvalidate(tb_name.get(), tb_start.get(), tb_end.get(), tb_duration.get(), tb_notes.get("1.0", 'end-1c'), controller))
+        #button2 = ttk.Button(self, text="Main page",
+        #                    command=lambda: controller.show_frame(StartPage))
+        button1.place(relx=0.01, rely=0.9, relheight=0.05, relwidth=0.2)
+        button2.place(relx=0.25, rely=0.9, relheight=0.05, relwidth=0.2)
+        #button2.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
 
         lab_name = ttk.Label(self, text="Name")
         lab_std = ttk.Label(self, text="Start Date")
@@ -241,21 +267,24 @@ class Page5(tk.Frame):
 
         tb_name = ttk.Entry(self, width=15)
         tb_duration = ttk.Entry(self, width=15)
-        tb_notes = ttk.Entry(self, width=15)
-        tb_std = tk.Entry(self)
-        tb_std.insert("end", "    /    /        ")
-        tb_std.config(fg="grey")
+        tb_notes = Text(self,width=15)
+        tb_start = DateEntry(self, width=15)
+        tb_end = DateEntry(self, width=15)
 
         lab_name.place(relx=0.11, rely=0.125, relheight=0.06, relwidth=0.1)
-        lab_std.place(relx=0.095, rely=0.245, relheight=0.06, relwidth=0.1)
-        lab_etd.place(relx=0.09, rely=0.365, relheight=0.06, relwidth=0.1)
-        lab_duration.place(relx=0.1, rely=0.485, relheight=0.06, relwidth=0.1)
-        lab_notes.place(relx=0.09, rely=0.605, relheight=0.06, relwidth=0.1)
+        lab_std.place(relx=0.103, rely=0.205, relheight=0.06, relwidth=0.1)
+        lab_etd.place(relx=0.105, rely=0.285, relheight=0.06, relwidth=0.1)
+        lab_duration.place(relx=0.105, rely=0.365, relheight=0.06, relwidth=0.1)
+        lab_notes.place(relx=0.11, rely=0.445, relheight=0.06, relwidth=0.1)
 
-        tb_name.place(relx=0.25, rely=0.125, relheight=0.08, relwidth=0.4)
-        tb_std.place(relx=0.25, rely=0.245, relheight=0.08, relwidth=0.4)
-        tb_duration.place(relx=0.25, rely=0.365, relheight=0.08, relwidth=0.4)
-        tb_notes.place(relx=0.25, rely=0.485, relheight=0.08, relwidth=0.4)
+        tb_name.place(relx=0.21, rely=0.14, relheight=0.03, relwidth=0.4)
+        tb_start.place(relx=0.21, rely=0.22, relheight=0.03, relwidth=0.4)
+        tb_end.place(relx=0.21, rely=0.3, relheight=0.03, relwidth=0.4)
+        tb_duration.place(relx=0.21, rely=0.38, relheight=0.03, relwidth=0.4)
+        tb_notes.place(relx=0.21, rely=0.46, relheight=0.33, relwidth=0.4)
+        tb_duration.config(state="disable")
+        tb_start.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
+        tb_end.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
 
 # Driver Code
 app = tkinterApp()
