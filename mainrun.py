@@ -1,7 +1,10 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 from tkinter import ttk, messagebox, Text, scrolledtext
 import sqlite3
+from tkinter import font
+from tkinter.font import BOLD, Font
 import sqlcalls
 import functions
 import tkcalendar
@@ -76,27 +79,53 @@ class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         # label of frame Layout 2
-        label = ttk.Label(self, text="Travel Planner", font=LARGEFONT)
-        # putting the grid in its place by using
-        # grid
-        label.grid(row=0, column=4, padx=10, pady=10)
+        # configure row sizes relative to other rows in self
+        self.rowconfigure(0, weight=2)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=2)
+        self.rowconfigure(3, weight=2)
+        # configure only one column
+        self.columnconfigure(0, weight=1)
 
-        button1 = ttk.Button(self, text="Trips",
+        # label as StartPage title
+        labelConfig = Font(self, size=60, weight=BOLD)
+        label = ttk.Label(self, text="Travel Planner",
+                          font=labelConfig, foreground='#101010')
+
+        # labelSub as subtitle
+        labelSubConfig = Font(self, size=18)
+        labelSub = ttk.Label(self, text="Plan the details, enjoy your trip!",
+                             font=labelSubConfig, foreground='#808080')
+
+        # interactionFrame surrounding the buttons
+        interactionFrame = LabelFrame(self, text="", padx=50, pady=75)
+
+        # placing labels and frame in grid accordingly
+        label.grid(row=0, pady=(0, 10), sticky=S)
+        labelSub.grid(row=1, sticky=N)
+        interactionFrame.grid(row=2, rowspan=2, padx=350, pady=(15, 50),
+                              sticky=NSEW)
+
+        # configure row sizes relative to other rows in interactionFrame
+        interactionFrame.rowconfigure(0, weight=1)
+        interactionFrame.rowconfigure(1, weight=1)
+        interactionFrame.columnconfigure(0, weight=1)
+
+        # button text style
+        b = ttk.Style()
+        b.configure("start.TButton", font=("Arial", 16))
+
+        # button1 showing frame 5 (Page5)
+        button1 = ttk.Button(interactionFrame, text="Add Trip", style="start.TButton",
+                             command=lambda: controller.show_frame(Page5))
+
+        # button2 showing frame 1 (Page1)
+        button2 = ttk.Button(interactionFrame, text="View Trips", style="start.TButton",
                              command=lambda: controller.show_frame(Page1))
-        # putting the button in its place by
-        # using grid
 
-        ## button to show frame 2 with text layout2
-        button2 = ttk.Button(self, text="Travelers",
-                             command=lambda: controller.show_frame(Page2))
-
-        # putting the button in its place by
-        # using grid
-        button1.place(relx=0.01, rely=0.45, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
-        print("hello")
-
-        #place here
+        # placing buttons in the interactionFrame rows respectively
+        button1.grid(row=0, pady=(0, 5), sticky=NSEW)
+        button2.grid(row=1, pady=(5, 0), sticky=NSEW)
 
 
 
