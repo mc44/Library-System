@@ -351,7 +351,6 @@ class Page5(tk.Frame):
         tb_duration.config(state="disable")
         tb_start.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
         tb_end.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
-        tb_duration.insert(END,' days')
 
 # Driver Code
 app = tkinterApp()
