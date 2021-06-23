@@ -116,11 +116,11 @@ class StartPage(tk.Frame):
         b.configure("start.TButton", font=("Arial", 16))
 
         # button1 showing frame 5 (Page5)
-        button1 = ttk.Button(interactionFrame, text="Add Trip", style="start.TButton",
+        button1 = ttk.Button(interactionFrame, text="Add New Trip", style="start.TButton",
                              command=lambda: controller.show_frame(Page5))
 
         # button2 showing frame 1 (Page1)
-        button2 = ttk.Button(interactionFrame, text="View Trips", style="start.TButton",
+        button2 = ttk.Button(interactionFrame, text="View All Trips", style="start.TButton",
                              command=lambda: controller.show_frame(Page1))
 
         # placing buttons in the interactionFrame rows respectively
@@ -263,7 +263,7 @@ class Page5(tk.Frame):
             messagebox.showinfo(parent=self, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
             return
         if int(dur) <= 0:
-            messagebox.showinfo(parent=self, title="Wrong Information", message="Input Propper Start and End Dates")
+            messagebox.showinfo(parent=self, title="Trip Duration Error", message="End date cannot be earlier than the start date.")
             return
         conn = sqlite3.connect("tplanner.db")
         add = conn.execute("INSERT INTO Trip (Trip_Name, Start_Date, End_Date, Duration, Notes) VALUES ('{}','{}','{}','{}','{}')".format(name, start, end, dur, notes))
@@ -273,47 +273,85 @@ class Page5(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text="Add another Trip", font=LARGEFONT)
-        label.grid(row=0, column=4, padx=10, pady=10)
 
-        # button to show frame 2 with text
-        # layout2
-        button1 = ttk.Button(self, text="Go back to Trip List",
+        # configuring column 0 to be the dominant column
+        self.columnconfigure(0, weight=1)
+
+        # header title and configuration
+        labelConfig = Font(self, size=50, weight=BOLD)
+        label = ttk.Label(self, text="Add New Trip", font=labelConfig, foreground='#101010')
+
+        # subheader and congfiguration
+        subheaderConfig = Font(self, size=16)
+        subheader = ttk.Label(self, text='Enter the details of your trip', font=subheaderConfig, foreground='#808080')
+        
+        # LABELFRAME housing the required entries
+        interactionFrame = LabelFrame(self, text="", pady=30)
+
+        # placing header, subheader, and interactionframe
+        # in grid-table in frame(self)
+        label.grid(row=0, sticky=S, pady=(30,0))
+        subheader.grid(row=1, pady=(0,20))
+        interactionFrame.grid(row=2, padx=350, pady=(0,20), sticky=NSEW)
+
+        # configuring column weights in interactionFrame
+        interactionFrame.columnconfigure(0, weight=3)
+        interactionFrame.columnconfigure(1, weight=5)
+
+        # styling 'add trip' button font
+        b = ttk.Style()
+        b.configure("add.TButton", font=("Arial", 16))
+
+        # button1 adding the information to the database
+        button1 = ttk.Button(self, text="Add Trip", style="add.TButton",
+                             command=lambda: self.tripvalidate(tb_name.get(), tb_start.get(),
+                             tb_end.get(), tb_duration.get(), tb_notes.get("1.0", 'end-1c'), controller))
+        # button2 showing Page1 (all trips page)
+        button2 = ttk.Button(self, text="View All Trips",
                              command=lambda: controller.show_frame(Page1))
-        button2 = ttk.Button(self, text="Submit",
-                             command=lambda: self.tripvalidate(tb_name.get(), tb_start.get(), tb_end.get(), tb_duration.get(), tb_notes.get("1.0", 'end-1c'), controller))
-        #button2 = ttk.Button(self, text="Main page",
-        #                    command=lambda: controller.show_frame(StartPage))
-        button1.place(relx=0.01, rely=0.9, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.25, rely=0.9, relheight=0.05, relwidth=0.2)
-        #button2.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
+        # button3 showing StartPage (start menu)
+        button3 = ttk.Button(self, text="Return to Main Menu",
+                             command=lambda: controller.show_frame(StartPage))
 
-        lab_name = ttk.Label(self, text="Name")
-        lab_std = ttk.Label(self, text="Start Date")
-        lab_etd = ttk.Label(self, text="End Date")
-        lab_duration = ttk.Label(self, text="Duration")
-        lab_notes = ttk.Label(self, text="Notes")
+        # placing the BUTTONS using grid in hierarchical arrangement
+        # button1 being the largest button
+        button1.grid(row=3, column=0, columnspan=2, ipady=15, padx=350, pady=(0,5), sticky=NSEW)
+        button2.grid(row=4, column=0, ipady=5, padx=350, pady=(0,5), sticky=EW)
+        button3.grid(row=5, column=0, ipady=5, padx=350, pady=(0,30), sticky=EW)
 
-        tb_name = ttk.Entry(self, width=15)
-        tb_duration = ttk.Entry(self, width=15)
-        tb_notes = Text(self,width=15)
-        tb_start = DateEntry(self, width=15)
-        tb_end = DateEntry(self, width=15)
+        # LABELS for the required information for 'add trip'
+        lab_name = ttk.Label(interactionFrame, text="Name")
+        lab_std = ttk.Label(interactionFrame, text="Start Date")
+        lab_etd = ttk.Label(interactionFrame, text="End Date")
+        lab_duration = ttk.Label(interactionFrame, text="Duration")
+        lab_notes = ttk.Label(interactionFrame, text="Notes")
 
-        lab_name.place(relx=0.11, rely=0.125, relheight=0.06, relwidth=0.1)
-        lab_std.place(relx=0.103, rely=0.205, relheight=0.06, relwidth=0.1)
-        lab_etd.place(relx=0.105, rely=0.285, relheight=0.06, relwidth=0.1)
-        lab_duration.place(relx=0.105, rely=0.365, relheight=0.06, relwidth=0.1)
-        lab_notes.place(relx=0.11, rely=0.445, relheight=0.06, relwidth=0.1)
+        # ENTRIES for the required information for 'add trip'
+        tb_name = ttk.Entry(interactionFrame, width=15)
+        tb_start = DateEntry(interactionFrame, width=15)
+        tb_end = DateEntry(interactionFrame, width=15)
+        tb_duration = ttk.Entry(interactionFrame, width=15)
+        tb_notes = Text(interactionFrame, width=15, height=6)
 
-        tb_name.place(relx=0.21, rely=0.14, relheight=0.03, relwidth=0.4)
-        tb_start.place(relx=0.21, rely=0.22, relheight=0.03, relwidth=0.4)
-        tb_end.place(relx=0.21, rely=0.3, relheight=0.03, relwidth=0.4)
-        tb_duration.place(relx=0.21, rely=0.38, relheight=0.03, relwidth=0.4)
-        tb_notes.place(relx=0.21, rely=0.46, relheight=0.33, relwidth=0.4)
+        # placing the LABELS using GRID in the interactionFrame, column 0
+        lab_name.grid(row=0, column=0)
+        lab_std.grid(row=1, column=0)
+        lab_etd.grid(row=2, column=0)
+        lab_duration.grid(row=3, column=0)
+        lab_notes.grid(row=4, column=0)
+
+        # placing the ENTRIES using GRID in the interactionFrame, column 1
+        tb_name.grid(row=0, column=1, ipady=5, padx=(0,50), pady=5, sticky=EW)
+        tb_start.grid(row=1, column=1, ipady=5, padx=(0,50), pady=5, sticky=EW)
+        tb_end.grid(row=2, column=1, ipady=5, padx=(0,50), pady=5, sticky=EW)
+        tb_duration.grid(row=3, column=1, ipady=5, padx=(0,50), pady=5, sticky=EW)
+        tb_notes.grid(row=4, column=1, ipady=5, padx=(0,50), pady=5, sticky=EW)
+
+        # DURATION entry configuration
         tb_duration.config(state="disable")
         tb_start.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
         tb_end.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
+        tb_duration.insert(END,' days')
 
 # Driver Code
 app = tkinterApp()
