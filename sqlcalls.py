@@ -57,6 +57,7 @@ def setupDB():
             TripD_ID        INTEGER NOT NULL,
             Destination	    VARCHAR(100) NOT NULL,
             Trip_ID	        INTEGER NOT NULL,
+            PRIMARY KEY(TripD_ID)
             FOREIGN KEY(Trip_ID) REFERENCES Trip(Trip_ID)
         );
     """)

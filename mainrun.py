@@ -137,7 +137,7 @@ class Page1(tk.Frame):
         label = ttk.Label(self, text="Trips", font=LARGEFONT)
         label.grid(row=0, column=4, padx=10, pady=10)
 
-        #Navigation
+        # Navigation
         button1 = ttk.Button(self, text="Main Page",
                              command=lambda: controller.show_frame(StartPage))
         button2 = ttk.Button(self, text="Travelers",
@@ -145,9 +145,9 @@ class Page1(tk.Frame):
         button3 = ttk.Button(self, text="Add Trip",
                              command=lambda: controller.show_frame(Page5))
 
-        button1.place(relx=0.01, rely=0.57, relheight=0.05, relwidth=0.2)
+        button1.place(relx=0.01, rely=0.73, relheight=0.05, relwidth=0.2)
         button2.place(relx=0.01, rely=0.65, relheight=0.05, relwidth=0.2)
-        button3.place(relx=0.4, rely=0.65, relheight=0.05, relwidth=0.2)
+        button3.place(relx=0.01, rely=0.57, relheight=0.05, relwidth=0.2)
 
         # Treeview
         # building tree view
@@ -157,12 +157,12 @@ class Page1(tk.Frame):
         tree_scroll.pack(side="right", fill="y")
         my_tree = ttk.Treeview(tree_frame, yscrollcommand=tree_scroll.set)
         my_tree['columns'] = (
-            "Trip_ID", "Trip Name", "Destination", "Start Date", "End Date", "Duration", "Notes", "Total Expenditure")
+            "Trip_ID", "Trip Name", "Start Date", "End Date", "Duration", "Notes", "Total Expenditure")
         # #0 column is the phantom column, parent-child relationship is not needed thus stretch=NO
         my_tree.column("#0", width=0, stretch="NO")
         my_tree.column("Trip_ID", anchor="center", width=40)
         my_tree.column("Trip Name", anchor="w", width=160)
-        my_tree.column("Destination", anchor="center", width=70)
+        # my_tree.column("Destination", anchor="center", width=70)
         my_tree.column("Start Date", anchor="center", width=70)
         my_tree.column("End Date", anchor="center", width=70)
         my_tree.column("Duration", anchor="center", width=70)
@@ -172,22 +172,154 @@ class Page1(tk.Frame):
         # my_tree.heading("#0", text="#", anchor=W)
         my_tree.heading("Trip_ID", text="Trip_ID", anchor="center")
         my_tree.heading("Trip Name", text="Trip Name", anchor="w")
-        my_tree.heading("Destination", text="Destination", anchor="center")
+        # my_tree.heading("Destination", text="Destination", anchor="center")
         my_tree.heading("Start Date", text="Start Date", anchor="center")
         my_tree.heading("End Date", text="End Date", anchor="center")
         my_tree.heading("Duration", text="Duration", anchor="center")
         my_tree.heading("Notes", text="Notes", anchor="center")
         my_tree.heading("Total Expenditure", text="Total Expenditure", anchor="center")
 
+        wrapper2 = tk.LabelFrame(self, text="Destinations")
+        tree_frame1 = tk.Frame(wrapper2)
+        tree_frame1.place(relx=0.01, rely=0.05, relheight=0.4, relwidth=0.98)
+        tree_scroll1 = tk.Scrollbar(tree_frame1)
+        tree_scroll1.pack(side="right", fill="y")
+        my_tree1 = ttk.Treeview(tree_frame1, yscrollcommand=tree_scroll1.set)
+        my_tree1['columns'] = (
+            "ID", "Destination")
+        my_tree1.column("#0", width=0, stretch="NO")
+        my_tree1.column("ID", anchor="center", width=40)
+        my_tree1.column("Destination", anchor="w", width=160)
+        my_tree1.heading("ID", text="ID", anchor="center")
+        my_tree1.heading("Destination", text="Destination", anchor="w")
+
         wrapper1 = tk.LabelFrame(self, text="Edit")
+        buttonedit = ttk.Button(wrapper1, text="Edit Entry", command=lambda: editOrDeleteEntry())
+        buttondelete = ttk.Button(wrapper1, text="Delete Entry", command=lambda: editOrDeleteEntry(TRUE))
 
+        destadd = ttk.Button(wrapper2, text="Add", command=lambda: functions.addEntry(destadd, my_tree, my_tree1, self))
+        destedit = ttk.Button(wrapper2, text="Edit",
+                              command=lambda: functions.editDestination(destedit, my_tree1, self))
+        destdelete = ttk.Button(wrapper2, text="Delete", command=lambda: deleteDest())
 
+        lab_name = ttk.Label(wrapper1, text="Name")
+        lab_std = ttk.Label(wrapper1, text="Start Date")
+        lab_etd = ttk.Label(wrapper1, text="End Date")
+        lab_duration = ttk.Label(wrapper1, text="Duration")
+        lab_notes = ttk.Label(wrapper1, text="Notes")
+
+        tb_name = ttk.Entry(wrapper1, width=15)
+        tb_duration = ttk.Entry(wrapper1, width=15)
+        tb_notes = Text(wrapper1, width=15)
+        tb_start = DateEntry(wrapper1, width=15)
+        tb_end = DateEntry(wrapper1, width=15)
+
+        lab_name.place(relx=0.11, rely=0.07, relheight=0.06, relwidth=0.14)
+        lab_std.place(relx=0.103, rely=0.16, relheight=0.06, relwidth=0.14)
+        lab_etd.place(relx=0.105, rely=0.25, relheight=0.06, relwidth=0.14)
+        lab_duration.place(relx=0.105, rely=0.33, relheight=0.06, relwidth=0.14)
+        lab_notes.place(relx=0.11, rely=0.42, relheight=0.06, relwidth=0.14)
+
+        tb_name.place(relx=0.28, rely=0.07, relheight=0.07, relwidth=0.6)
+        tb_start.place(relx=0.28, rely=0.16, relheight=0.07, relwidth=0.6)
+        tb_end.place(relx=0.28, rely=0.25, relheight=0.07, relwidth=0.6)
+        tb_duration.place(relx=0.28, rely=0.33, relheight=0.07, relwidth=0.6)
+        tb_notes.place(relx=0.28, rely=0.42, relheight=0.33, relwidth=0.6)
+        tb_duration.config(state="disable")
+        tb_start.bind('<<DateEntrySelected>>',
+                      lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
+        tb_end.bind('<<DateEntrySelected>>',
+                    lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
+
+        wrapper1.place(relx=0.22, rely=0.48, relheight=0.5, relwidth=0.4)
+        wrapper2.place(relx=0.64, rely=0.48, relheight=0.5, relwidth=0.34)
+        buttonedit.place(relx=0.28, rely=0.85, relheight=0.11, relwidth=0.2)
+        buttondelete.place(relx=0.52, rely=0.85, relheight=0.11, relwidth=0.2)
+        destadd.place(relx=0.02, rely=0.85, relheight=0.11, relwidth=0.2)
+        destedit.place(relx=0.26, rely=0.85, relheight=0.11, relwidth=0.2)
+        destdelete.place(relx=0.50, rely=0.85, relheight=0.11, relwidth=0.2)
         # Placing widgets
         my_tree.pack(fill="x")
+        my_tree1.pack(fill="x")
         tree_scroll.config(command=my_tree.yview)
+        my_tree.bind('<<TreeviewSelect>>', lambda e: onFocus())
 
-        # Calls
-        #functions.filltree(my_tree, "Trip")
+        def onFocus():
+            tb_name.delete(0, END)
+            tb_start.delete(0, END)
+            tb_end.delete(0, END)
+            tb_duration.config(state=NORMAL)
+            tb_duration.delete(0, END)
+            tb_duration.config(state=DISABLED)
+            tb_notes.delete(1.0, END)
+            selected = my_tree.focus()
+            values = my_tree.item(selected, 'values')
+            conn = sqlite3.connect("tplanner.db")
+            data = conn.execute(f"SELECT * FROM Trip WHERE Trip_id={values[0]} ").fetchall()[0]
+            conn.close()
+            tb_name.insert(0, data[1])
+            tb_start.insert(0, data[2])
+            tb_end.insert(0, data[3])
+            tb_duration.config(state=NORMAL)
+            tb_duration.insert(0, data[4])
+            tb_duration.config(state=DISABLED)
+            tb_notes.insert(tk.END, data[5])
+            functions.filltree(my_tree1, "Trip_Destination", data[0])
+
+        #Delete Dest
+        def deleteDest():
+            selected = my_tree1.focus()
+            values = my_tree1.item(selected, 'values')
+            conn = sqlite3.connect("tplanner.db")
+            exec = conn.execute(f"DELETE FROM Trip_Destination WHERE TripD_ID = '{values[0]}'")
+            conn.commit()
+            conn.close()
+            my_tree1.delete(*my_tree1.get_children())
+            functions.filltree(my_tree1, "Trip_Destination", values[2])
+
+        #For Trip
+        def editOrDeleteEntry(delete=FALSE):
+            selected = my_tree.focus()
+            if not selected:
+                return
+            # from treeview value
+            values = my_tree.item(selected, 'values')
+            sid = str(values[0])
+            conn = sqlite3.connect("tplanner.db")
+            data = conn.execute(f"SELECT * FROM Trip WHERE Trip_id={sid} ").fetchall()[0]
+            conn.close()
+            # from onfocus
+            n_tb = tb_name.get()
+            s_tb = tb_start.get()
+            e_tb = tb_end.get()
+            d_tb = tb_duration.get()
+            no_tb = tb_notes.get("1.0", 'end-1c')
+            counter = 0
+
+            if delete:
+                result = messagebox.askquestion("Delete", "Are You Sure?", icon='warning')
+                if result == 'yes':
+                    conn = sqlite3.connect("tplanner.db")
+                    data = conn.execute("DELETE FROM Trip WHERE Trip_ID='{}'".format(sid))
+                    conn.commit()
+                    conn.close()
+                else:
+                    return
+            else:
+                conn = sqlite3.connect("tplanner.db")
+                edit = conn.execute(
+                    f'UPDATE Trip SET Trip_Name=\'{n_tb}\', Start_date=\'{s_tb}\', End_date=\'{e_tb}\', Duration=\'{d_tb}\', Notes=\'{no_tb}\' WHERE Trip_ID=\'{sid}\'')
+                conn.commit()
+                conn.close()
+            functions.filltree(my_tree, "Trip")
+            tb_name.delete(0, END)
+            tb_start.delete(0, END)
+            tb_end.delete(0, END)
+            tb_duration.config(state=NORMAL)
+            tb_duration.delete(0, END)
+            tb_duration.config(state=DISABLED)
+            tb_notes.delete(1.0, END)
+            return
 
 
 # Travelers Screen
