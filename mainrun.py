@@ -1,3 +1,4 @@
+from os import remove
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
@@ -20,6 +21,8 @@ LARGEFONT = ("Verdana", 35)
 
 #Global Variables
 
+trackTrip = "2"
+trackItin = ""
 
 class tkinterApp(tk.Tk):
 
@@ -29,26 +32,26 @@ class tkinterApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         # creating a container
-        container = tk.Frame(self)
-        container.pack(side="top", fill="both", expand=True)
+        self.container = tk.Frame(self)
+        self.container.pack(side="top", fill="both", expand=True)
 
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
         width = 1200
         height = 700
         self.minsize(width, height)
         self.title("Travel Planner")
         self.resizable(False, False)
-        x = functions.getcenterX(width, container)
-        y = functions.getcenterY(height, container)
+        x = functions.getcenterX(width, self.container)
+        y = functions.getcenterY(height, self.container)
         self.geometry(f'{width}x{height}+{int(x)}+{int(y)}')
         # initializing frames to an empty array
         self.frames = {}
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (StartPage, Page1, Page2, Page3, Page4, Page5):
-            frame = F(container, self)
+        for F in (StartPage, Page1, Page2, Page3, Page4, Page5, TripDetails):
+            frame = F(self.container, self)
 
             # initializing frame of that object from
             # startpage, page1, page2 respectively with
@@ -62,7 +65,12 @@ class tkinterApp(tk.Tk):
     # to display the current frame passed as
     # parameter
     def show_frame(self, cont):
+
+        updateframe = cont(self.container, controller=self)
+        self.frames[cont] = updateframe
+        updateframe.grid(row=0, column=0, sticky="nsew")
         frame = self.frames[cont]
+
         #if moving to page1, refresh treeview
         if "page1" in str(frame):
             for child in frame.winfo_children():
@@ -144,10 +152,13 @@ class Page1(tk.Frame):
                              command=lambda: controller.show_frame(Page2))
         button3 = ttk.Button(self, text="Add Trip",
                              command=lambda: controller.show_frame(Page5))
+        button4 = ttk.Button(self, text="View Trip Details",
+                             command=lambda: controller.show_frame(TripDetails))
 
         button1.place(relx=0.01, rely=0.73, relheight=0.05, relwidth=0.2)
         button2.place(relx=0.01, rely=0.65, relheight=0.05, relwidth=0.2)
         button3.place(relx=0.01, rely=0.57, relheight=0.05, relwidth=0.2)
+        button4.place(relx=0.01, rely=0.90, relheight=0.05, relwidth=0.2)
 
         # Treeview
         # building tree view
@@ -170,7 +181,7 @@ class Page1(tk.Frame):
         my_tree.column("Total Expenditure", anchor="center", width=70)
 
         # my_tree.heading("#0", text="#", anchor=W)
-        my_tree.heading("Trip_ID", text="Trip_ID", anchor="center")
+        my_tree.heading("Trip_ID", text="Trip ID", anchor="center")
         my_tree.heading("Trip Name", text="Trip Name", anchor="w")
         # my_tree.heading("Destination", text="Destination", anchor="center")
         my_tree.heading("Start Date", text="Start Date", anchor="center")
@@ -254,6 +265,11 @@ class Page1(tk.Frame):
             tb_notes.delete(1.0, END)
             selected = my_tree.focus()
             values = my_tree.item(selected, 'values')
+            
+            global trackTrip
+            trackTrip = values[0]
+            #print("Tracked:", trackTrip)
+
             conn = sqlite3.connect("tplanner.db")
             data = conn.execute(f"SELECT * FROM Trip WHERE Trip_id={values[0]} ").fetchall()[0]
             conn.close()
@@ -484,6 +500,200 @@ class Page5(tk.Frame):
         tb_start.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
         tb_end.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
 
+
+class TripDetails(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # configuring column-row weights in self
+        self.columnconfigure(0, weight=3)
+        self.columnconfigure(1, weight=2)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=2)
+
+        # page title
+        label = ttk.Label(self, text="Trip Details", font=LARGEFONT)
+        label.grid(row=0, column=0, padx=20, pady=20, sticky=SW)
+        
+        # RETURN to Trips page button
+        tripPageButton = ttk.Button(self, text="Return to All Trips",
+                                   command=lambda: controller.show_frame(Page1))
+        tripPageButton.grid(row=0, column=1, ipadx=10, ipady=5, padx=20, sticky=SE)
+
+        # creating the wrapper for treeview of Travelers
+        destTreeWrapper = tk.LabelFrame(self, text="Travelers")
+        destTreeWrapper.grid(row=1, column=1, padx=(5,20), pady=(20,5), sticky=NSEW)
+        #destTreeWrapper.columnconfigure(0, weight=1)
+        #destTreeWrapper.rowconfigure(0, weight=1)
+
+        # treeview of Travelers
+        destTreeFrame = tk.Frame(destTreeWrapper)
+        destTreeFrame.pack(fill='both', padx=20, pady=30)
+
+        destTreeScroll = tk.Scrollbar(destTreeFrame)
+        destTreeScroll.pack(side="right", fill="y")
+        destTree = ttk.Treeview(destTreeFrame, yscrollcommand=destTreeScroll.set)
+        destTree['columns'] = (
+            "Traveler_ID", "Name", "Age", "Gender", "Address"
+        )
+        # defining columns in treeview
+        destTree.column("#0", width=0, stretch="NO")
+        destTree.column("Traveler_ID", anchor="w", width=2)
+        destTree.column("Name", anchor="w", width=125)
+        destTree.column("Age", anchor="w", width=2)
+        destTree.column("Gender", anchor="w", width=20)
+        destTree.column("Address", anchor="w", width=200)
+        destTree.heading("Traveler_ID", text="ID", anchor="w")
+        destTree.heading("Name", text="Name", anchor="w")
+        destTree.heading("Age", text="Age", anchor="w")
+        destTree.heading("Gender", text="Gender", anchor="w")
+        destTree.heading("Address", text="Address", anchor="w")
+
+        # packing treeview in destTreeFrame
+        destTree.pack(fill='both')
+        #destTreeScroll.config(command=destTree.yview)
+
+        # wrapper for trip details
+        editWrapper = tk.LabelFrame(self, text="Trip Details")
+        editWrapper.grid(row=1, column=0, padx=(20,5), pady=(20,5), sticky=NSEW)
+
+        # configuring column in editWrapper
+        editWrapper.columnconfigure(0, weight=1)
+
+        # labels in editWrapper
+        lab_name = ttk.Label(editWrapper, text="Name")
+        lab_std = ttk.Label(editWrapper, text="Start Date")
+        lab_etd = ttk.Label(editWrapper, text="End Date")
+        lab_duration = ttk.Label(editWrapper, text="Duration")
+        lab_notes = ttk.Label(editWrapper, text="Notes")
+
+        # entries in editWrapper
+        tb_name = ttk.Entry(editWrapper, width=30)
+        tb_start = DateEntry(editWrapper, width=30)
+        tb_end = DateEntry(editWrapper, width=30)
+        tb_duration = ttk.Entry(editWrapper, width=30)
+        tb_notes = Text(editWrapper, width=30, height=6) # height -> line numbers NOT pixels
+        
+        # placing the labels and entries in editWrapper
+        lab_name.grid(row=0, column=0, pady=(20,0))
+        lab_std.grid(row=1, column=0)
+        lab_etd.grid(row=2, column=0)
+        lab_duration.grid(row=3, column=0)
+        lab_notes.grid(row=4, column=0)
+
+        tb_name.grid(row=0, column=1, ipady=1, padx=(0,20), pady=(20,2), sticky=EW)
+        tb_start.grid(row=1, column=1, ipady=1, padx=(0,20), pady=2, sticky=EW)
+        tb_end.grid(row=2, column=1, ipady=1, padx=(0,20), pady=2, sticky=EW)
+        tb_duration.grid(row=3, column=1, ipady=1, padx=(0,20), pady=2, sticky=EW)
+        tb_notes.grid(row=4, column=1, ipady=1, padx=(0,20), pady=(2,20), sticky=NSEW)
+
+        tripEditButton = ttk.Button(editWrapper, text="Update Trip", width=15,
+                                    command=lambda: editOrDeleteEntry())
+        tripDeleteButton = ttk.Button(editWrapper, text="Remove Trip", width=15,
+                                      command=lambda: editOrDeleteEntry(TRUE))
+
+        tripEditButton.grid(row=5, column=0, ipady=3, padx=(20,0), sticky=SW)
+        tripDeleteButton.grid(row=5, column=1, ipady=3, sticky=SW)
+
+
+        # -----TRAVELER DETAILS-----
+        travelerWrapper = tk.LabelFrame(self, text="Traveler Details")
+        travelerWrapper.grid(row=2, column=1, padx=(5, 20), pady=(5,20), sticky=NSEW)
+
+        #travelerWrapper.rowconfigure(0, weight=1)
+        travelerWrapper.columnconfigure(0, weight=1)
+        travelerWrapper.columnconfigure(1, weight=1)
+        travelerWrapper.columnconfigure(2, weight=1)
+
+        # traveler labels
+        nameTraveler = ttk.Label(travelerWrapper, text="Name")
+        ageTraveler = ttk.Label(travelerWrapper, text="Age")
+        genderTraveler = ttk.Label(travelerWrapper, text="Gender")
+        addressTraveler = ttk.Label(travelerWrapper, text="Address")
+
+        nameTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        ageTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        genderTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        addressTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+
+        nameTraveler.grid(row=0, column=0, pady=(30,0))
+        ageTraveler.grid(row=1, column=0)
+        genderTraveler.grid(row=2, column=0)
+        addressTraveler.grid(row=3, column=0, pady=(0,30))
+
+        nameTravelerEnt.grid(row=0, column=1, columnspan=2, padx=(0,20), pady=(30,2), sticky=EW)
+        ageTravelerEnt.grid(row=1, column=1, columnspan=2, padx=(0,20), pady=2, sticky=EW)
+        genderTravelerEnt.grid(row=2, column=1, columnspan=2, padx=(0,20), pady=2, sticky=EW)
+        addressTravelerEnt.grid(row=3, column=1, columnspan=2, padx=(0,20), pady=(2,30), sticky=EW)
+
+        addTraveler = ttk.Button(travelerWrapper, text="Add Traveler")
+        updateTraveler = ttk.Button(travelerWrapper, text="Updated Traveler")
+        removeTraveler = ttk.Button(travelerWrapper, text="Remove Traveler")
+        
+        addTraveler.grid(row=4, column=0, ipadx=10, ipady=3, padx=20, sticky=SW)
+        updateTraveler.grid(row=4, column=1, ipadx=10, ipady=3, sticky=SW)
+        removeTraveler.grid(row=4, column=2, ipadx=10, ipady=3, sticky=SW)
+
+        # clearing entries per refresh
+        tb_name.delete(0, END)
+        tb_start.delete(0, END)
+        tb_end.delete(0, END)
+        tb_duration.config(state=NORMAL)
+        tb_duration.delete(0, END)
+        tb_duration.config(state=DISABLED)
+        tb_notes.delete(1.0, END)
+
+        # requesting data from DB
+        conn = sqlite3.connect("tplanner.db")
+        data = conn.execute(f"SELECT * FROM Trip WHERE Trip_id={trackTrip} ").fetchall()[0]
+        conn.close()
+
+        # inserting gathered data from DB to entries
+        tb_name.insert(0, data[1])
+        tb_start.insert(0, data[2])
+        tb_end.insert(0, data[3])
+        tb_duration.config(state=NORMAL)
+        tb_duration.insert(0, data[4])
+        tb_duration.config(state=DISABLED)
+        tb_notes.insert(tk.END, data[5])
+
+        # delete/edit function for trip details
+        def editOrDeleteEntry(delete=FALSE):
+
+            # from global trackTrip
+            edit_ID = str(trackTrip)
+            conn = sqlite3.connect("tplanner.db")
+            data = conn.execute(f"SELECT * FROM Trip WHERE Trip_id={edit_ID} ").fetchall()[0]
+            conn.close()
+
+            # from Entries
+            n_tb = tb_name.get()
+            s_tb = tb_start.get()
+            e_tb = tb_end.get()
+            d_tb = tb_duration.get()
+            no_tb = tb_notes.get("1.0", 'end-1c')
+            counter = 0
+
+            if delete:
+                result = messagebox.askquestion("Delete", "Are you sure you would like to delete this trip? This action cannot be undone.", icon='warning')
+                if result == 'yes':
+                    conn = sqlite3.connect("tplanner.db")
+                    data = conn.execute("DELETE FROM Trip WHERE Trip_ID='{}'".format(edit_ID))
+                    conn.commit()
+                    conn.close()
+                    controller.show_frame(Page1)
+                else:
+                    return
+            else:
+                conn = sqlite3.connect("tplanner.db")
+                edit = conn.execute(
+                    f'UPDATE Trip SET Trip_Name=\'{n_tb}\', Start_date=\'{s_tb}\', End_date=\'{e_tb}\', Duration=\'{d_tb}\', Notes=\'{no_tb}\' WHERE Trip_ID=\'{edit_ID}\'')
+                conn.commit()
+                conn.close()
+                messagebox.showinfo("Edit Trip", "Trip details has been successfully updated.")
+
+            
 # Driver Code
 app = tkinterApp()
 app.mainloop()
