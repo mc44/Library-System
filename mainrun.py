@@ -155,10 +155,10 @@ class Page1(tk.Frame):
         button4 = ttk.Button(self, text="View Trip Details",
                              command=lambda: controller.show_frame(TripDetails))
 
-        button1.place(relx=0.01, rely=0.73, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.01, rely=0.65, relheight=0.05, relwidth=0.2)
-        button3.place(relx=0.01, rely=0.57, relheight=0.05, relwidth=0.2)
-        button4.place(relx=0.01, rely=0.90, relheight=0.05, relwidth=0.2)
+        button1.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
+        button2.place(relx=0.01, rely=0.67, relheight=0.05, relwidth=0.2)
+        button3.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
+        button4.place(relx=0.01, rely=0.61, relheight=0.05, relwidth=0.2)
 
         # Treeview
         # building tree view
@@ -342,26 +342,86 @@ class Page1(tk.Frame):
 class Page2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text="Travelers", font=LARGEFONT)
-        label.grid(row=0, column=4, padx=10, pady=10)
 
-        # button to show frame 2 with text
-        # layout2
-        button1 = ttk.Button(self, text="Trip",
-                             command=lambda: controller.show_frame(Page1))
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.rowconfigure(1, weight=1)
 
-        # putting the button in its place by
-        # using grid
-        button1.grid(row=1, column=1, padx=10, pady=10)
+        # title of page
+        labelConfig = Font(self, size=50, weight=BOLD)
+        label = ttk.Label(self, text="Travelers", font=labelConfig, foreground='#101010')
+        label.grid(columnspan=2, padx=10, pady=10, sticky=S)
 
-        # button to show frame 3 with text
-        # layout3
-        button2 = ttk.Button(self, text="Main page",
-                             command=lambda: controller.show_frame(StartPage))
+        # creating the wrapper for treeview of Travelers
+        destTreeWrapper = tk.LabelFrame(self, text="Travelers")
+        destTreeWrapper.grid(row=1, column=1, padx=(5,50), pady=20, sticky=EW)
+        #destTreeWrapper.columnconfigure(0, weight=1)
+        #destTreeWrapper.rowconfigure(0, weight=1)
 
-        # putting the button in its place by
-        # using grid
-        button2.grid(row=2, column=1, padx=10, pady=10)
+        # treeview of Travelers
+        travTreeFrame = tk.Frame(destTreeWrapper)
+        travTreeFrame.pack(fill='both', padx=20, pady=30)
+
+        travTreeScroll = tk.Scrollbar(travTreeFrame)
+        travTreeScroll.pack(side="right", fill="y")
+        travTree = ttk.Treeview(travTreeFrame, yscrollcommand=travTreeScroll.set)
+        travTree['columns'] = (
+            "Traveler_ID", "Name", "Age", "Gender", "Address"
+        )
+        # defining columns in treeview
+        travTree.column("#0", width=0, stretch="NO")
+        travTree.column("Traveler_ID", anchor="w", width=2)
+        travTree.column("Name", anchor="w", width=125)
+        travTree.column("Age", anchor="w", width=2)
+        travTree.column("Gender", anchor="w", width=20)
+        travTree.column("Address", anchor="w", width=200)
+        travTree.heading("Traveler_ID", text="ID", anchor="w")
+        travTree.heading("Name", text="Name", anchor="w")
+        travTree.heading("Age", text="Age", anchor="w")
+        travTree.heading("Gender", text="Gender", anchor="w")
+        travTree.heading("Address", text="Address", anchor="w")
+
+        # packing treeview in travTree
+        travTree.pack(fill='both')
+        travTreeScroll.config(command=travTree.yview)
+
+        # -----TRAVELER DETAILS-----
+        travelerWrapper = tk.LabelFrame(self, text="Traveler Details")
+        travelerWrapper.grid(row=1, column=0, padx=(50,5), pady=20, sticky=EW)
+
+        #travelerWrapper.rowconfigure(0, weight=1)
+        travelerWrapper.columnconfigure(0, weight=1)
+        travelerWrapper.columnconfigure(1, weight=1)
+        travelerWrapper.columnconfigure(2, weight=1)
+
+        # traveler labels
+        nameTraveler = ttk.Label(travelerWrapper, text="Name")
+        ageTraveler = ttk.Label(travelerWrapper, text="Age")
+        genderTraveler = ttk.Label(travelerWrapper, text="Gender")
+        addressTraveler = ttk.Label(travelerWrapper, text="Address")
+
+        nameTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        ageTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        genderTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        addressTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+
+        nameTraveler.grid(row=0, column=0, pady=(40,0))
+        ageTraveler.grid(row=1, column=0)
+        genderTraveler.grid(row=2, column=0)
+        addressTraveler.grid(row=3, column=0, pady=(0,30))
+
+        nameTravelerEnt.grid(row=0, column=1, columnspan=2, ipady=2, padx=(0,20), pady=(40,3), sticky=EW)
+        ageTravelerEnt.grid(row=1, column=1, columnspan=2, ipady=2, padx=(0,20), pady=3, sticky=EW)
+        genderTravelerEnt.grid(row=2, column=1, columnspan=2, ipady=2, padx=(0,20), pady=3, sticky=EW)
+        addressTravelerEnt.grid(row=3, column=1, columnspan=2, ipady=2, padx=(0,20), pady=(3,30), sticky=EW)
+
+        addTraveler = ttk.Button(travelerWrapper, text="Add Traveler")
+        updateTraveler = ttk.Button(travelerWrapper, text="Update Traveler")
+        removeTraveler = ttk.Button(travelerWrapper, text="Remove Traveler")
+        
+        addTraveler.grid(row=4, column=0, ipadx=14, ipady=3, padx=(30,0), pady=34, sticky=SW)
+        updateTraveler.grid(row=4, column=1, ipadx=10, ipady=3, pady=34, sticky=SW)
+        removeTraveler.grid(row=4, column=2, ipadx=10, ipady=3, pady=34, sticky=SW)
 
 #Itinerary Screen
 class Page3(tk.Frame):
@@ -500,7 +560,7 @@ class Page5(tk.Frame):
         tb_start.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
         tb_end.bind('<<DateEntrySelected>>', lambda e: functions.calcdur(tb_start.get_date(), tb_end.get_date(), tb_duration))
 
-
+#Trip Details Screen
 class TripDetails(tk.Frame):
 
     def __init__(self, parent, controller):
@@ -528,31 +588,31 @@ class TripDetails(tk.Frame):
         #destTreeWrapper.rowconfigure(0, weight=1)
 
         # treeview of Travelers
-        destTreeFrame = tk.Frame(destTreeWrapper)
-        destTreeFrame.pack(fill='both', padx=20, pady=30)
+        travTreeFrame = tk.Frame(destTreeWrapper)
+        travTreeFrame.pack(fill='both', padx=20, pady=30)
 
-        destTreeScroll = tk.Scrollbar(destTreeFrame)
-        destTreeScroll.pack(side="right", fill="y")
-        destTree = ttk.Treeview(destTreeFrame, yscrollcommand=destTreeScroll.set)
-        destTree['columns'] = (
+        travTreeScroll = tk.Scrollbar(travTreeFrame)
+        travTreeScroll.pack(side="right", fill="y")
+        travTree = ttk.Treeview(travTreeFrame, yscrollcommand=travTreeScroll.set)
+        travTree['columns'] = (
             "Traveler_ID", "Name", "Age", "Gender", "Address"
         )
         # defining columns in treeview
-        destTree.column("#0", width=0, stretch="NO")
-        destTree.column("Traveler_ID", anchor="w", width=2)
-        destTree.column("Name", anchor="w", width=125)
-        destTree.column("Age", anchor="w", width=2)
-        destTree.column("Gender", anchor="w", width=20)
-        destTree.column("Address", anchor="w", width=200)
-        destTree.heading("Traveler_ID", text="ID", anchor="w")
-        destTree.heading("Name", text="Name", anchor="w")
-        destTree.heading("Age", text="Age", anchor="w")
-        destTree.heading("Gender", text="Gender", anchor="w")
-        destTree.heading("Address", text="Address", anchor="w")
+        travTree.column("#0", width=0, stretch="NO")
+        travTree.column("Traveler_ID", anchor="w", width=2)
+        travTree.column("Name", anchor="w", width=125)
+        travTree.column("Age", anchor="w", width=2)
+        travTree.column("Gender", anchor="w", width=20)
+        travTree.column("Address", anchor="w", width=200)
+        travTree.heading("Traveler_ID", text="ID", anchor="w")
+        travTree.heading("Name", text="Name", anchor="w")
+        travTree.heading("Age", text="Age", anchor="w")
+        travTree.heading("Gender", text="Gender", anchor="w")
+        travTree.heading("Address", text="Address", anchor="w")
 
-        # packing treeview in destTreeFrame
-        destTree.pack(fill='both')
-        #destTreeScroll.config(command=destTree.yview)
+        # packing treeview in travTree
+        travTree.pack(fill='both')
+        travTreeScroll.config(command=travTree.yview)
 
         # wrapper for trip details
         editWrapper = tk.LabelFrame(self, text="Trip Details")
@@ -691,7 +751,7 @@ class TripDetails(tk.Frame):
                     f'UPDATE Trip SET Trip_Name=\'{n_tb}\', Start_date=\'{s_tb}\', End_date=\'{e_tb}\', Duration=\'{d_tb}\', Notes=\'{no_tb}\' WHERE Trip_ID=\'{edit_ID}\'')
                 conn.commit()
                 conn.close()
-                messagebox.showinfo("Edit Trip", "Trip details has been successfully updated.")
+                messagebox.showinfo("Edit Trip", "Trip has been successfully updated.")
 
             
 # Driver Code
