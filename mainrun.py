@@ -350,7 +350,7 @@ class Page2(tk.Frame):
         # title of page
         labelConfig = Font(self, size=50, weight=BOLD)
         label = ttk.Label(self, text="Travelers", font=labelConfig, foreground='#101010')
-        label.grid(columnspan=2, padx=10, pady=10, sticky=S)
+        label.grid(columnspan=2, padx=10, pady=(20,0), sticky=S)
 
         # creating the wrapper for treeview of Travelers
         destTreeWrapper = tk.LabelFrame(self, text="Travelers")
@@ -422,6 +422,15 @@ class Page2(tk.Frame):
         addTraveler.grid(row=4, column=0, ipadx=14, ipady=3, padx=(30,0), pady=34, sticky=SW)
         updateTraveler.grid(row=4, column=1, ipadx=10, ipady=3, pady=34, sticky=SW)
         removeTraveler.grid(row=4, column=2, ipadx=10, ipady=3, pady=34, sticky=SW)
+
+        allTripsButton = ttk.Button(self, text="View All Trips",
+                                    command=lambda: controller.show_frame(Page1))
+        mainMenuButton = ttk.Button(self, text="Main Menu",
+                                    command=lambda: controller.show_frame(StartPage))
+
+        allTripsButton.grid(row=1, column=0, ipadx=50, ipady=10, padx=(250,0), pady=(0,80), sticky=SW)
+        mainMenuButton.grid(row=1, column=0, ipadx=50, ipady=10, padx=(50,0), pady=(0,80), sticky=SW)
+
 
 #Itinerary Screen
 class Page3(tk.Frame):
@@ -579,7 +588,12 @@ class TripDetails(tk.Frame):
         # RETURN to Trips page button
         tripPageButton = ttk.Button(self, text="Return to All Trips",
                                    command=lambda: controller.show_frame(Page1))
-        tripPageButton.grid(row=0, column=1, ipadx=10, ipady=5, padx=20, sticky=SE)
+        tripPageButton.grid(row=2, column=0, ipadx=80, ipady=10, padx=50, pady=(0,70), sticky=S)
+
+        # VIEW ALL TRAVELLERS page button
+        travelersButton = ttk.Button(self, text="View All Travelers",
+                                     command=lambda: controller.show_frame(Page2))
+        travelersButton.grid(row=2, column=0, ipadx=82, ipady=10, padx=50, pady=(70,0), sticky=N)
 
         # creating the wrapper for treeview of Travelers
         destTreeWrapper = tk.LabelFrame(self, text="Travelers")
