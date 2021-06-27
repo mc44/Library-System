@@ -17,7 +17,7 @@ from tkcalendar import Calendar, DateEntry
 
 sqlcalls.setupDB()
 
-LARGEFONT = ("Verdana", 35)
+LARGEFONT = ("Arial", 35, BOLD)
 
 # Global Variables
 
@@ -140,17 +140,17 @@ class Page1(tk.Frame):
         # Navigation
         button1 = ttk.Button(self, text="Main Page",
                              command=lambda: controller.show_frame(StartPage))
-        button2 = ttk.Button(self, text="Travelers",
+        button2 = ttk.Button(self, text="View All Travelers",
                              command=lambda: controller.show_frame(Page2))
-        button3 = ttk.Button(self, text="Add Trip",
+        button3 = ttk.Button(self, text="Add New Trip",
                              command=lambda: controller.show_frame(Page5))
         button4 = ttk.Button(self, text="View Trip Details",
                              command=lambda: controller.show_frame(TripDetails))
 
-        button1.place(relx=0.01, rely=0.75, relheight=0.05, relwidth=0.2)
-        button2.place(relx=0.01, rely=0.67, relheight=0.05, relwidth=0.2)
-        button3.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
-        button4.place(relx=0.01, rely=0.61, relheight=0.05, relwidth=0.2)
+        button1.place(relx=0.01, rely=0.77, relheight=0.05, relwidth=0.2)
+        button2.place(relx=0.01, rely=0.70, relheight=0.05, relwidth=0.2)
+        button3.place(relx=0.01, rely=0.645, relheight=0.05, relwidth=0.2)
+        button4.place(relx=0.98, rely=0.10, relheight=0.05, relwidth=0.15, x=-4, anchor=E)
 
         # Treeview
         # building tree view
@@ -476,7 +476,7 @@ class Page3(tk.Frame):
 
         button1 = ttk.Button(self, text="Main Page",
                              command=lambda: controller.show_frame(StartPage))
-        button2 = ttk.Button(self, text="Go Back",
+        button2 = ttk.Button(self, text="Return to Trip Details",
                              command=lambda: controller.show_frame(TripDetails))
         button3 = ttk.Button(self, text="Add Itinerary",
                              command=lambda: functions.addItin(button3, my_tree, trackTrip, self))
@@ -510,7 +510,7 @@ class Page3(tk.Frame):
         my_tree.heading("Itinerary_Name", text="Itinerary_Name", anchor="center")
         my_tree.heading("Description", text="Description", anchor="center")
         functions.filltree(my_tree, "Itinerary", trackTrip)
-        wrapper2 = tk.LabelFrame(self, text="Destinations")
+        wrapper2 = tk.LabelFrame(self, text="Events")
         tree_frame1 = tk.Frame(wrapper2)
         tree_frame1.place(relx=0.01, rely=0.05, relheight=0.7, relwidth=0.98)
         tree_scroll1 = tk.Scrollbar(tree_frame1)
@@ -732,13 +732,6 @@ class TripDetails(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        # configuring column-row weights in self
-        self.columnconfigure(0, weight=3)
-        self.columnconfigure(1, weight=2)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=2)
-        self.rowconfigure(3, weight=2)
-
         # page title
         label = ttk.Label(self, text="Trip Details", font=LARGEFONT)
         label.grid(row=0, column=0, padx=20, pady=20, sticky=SW)
@@ -746,25 +739,25 @@ class TripDetails(tk.Frame):
         # RETURN to Trips page button
         tripPageButton = ttk.Button(self, text="Return to All Trips",
                                     command=lambda: controller.show_frame(Page1))
-        tripPageButton.grid(row=0, column=0, ipadx=10, ipady=5, padx=20, sticky=SE)
-        tripPageButton.grid(row=2, column=0, ipadx=80, ipady=10, padx=50, pady=(0, 70), sticky=S)
+        tripPageButton.place(relx=0.02, rely=0.76, relwidth=0.2, relheight=0.07, anchor=NW)
 
         # VIEW ALL TRAVELLERS page button
         travelersButton = ttk.Button(self, text="View All Travelers",
                                      command=lambda: controller.show_frame(Page2))
-        travelersButton.grid(row=2, column=0, ipadx=82, ipady=10, padx=50, pady=(70, 0), sticky=N)
-        GoItinerary = ttk.Button(self, text="Check Itinerary",
+        travelersButton.place(relx=0.24, rely=0.76, relwidth=0.2, relheight=0.07, anchor=NW)
+
+        # View ITINERARIES button
+        GoItinerary = ttk.Button(self, text="View Trip Itinerary",
                                  command=lambda: controller.show_frame(Page3))
-        GoItinerary.grid(row=0, column=1, ipadx=10, ipady=5, padx=20, sticky=SE)
+        #GoItinerary.grid(row=0, column=1, ipadx=20, ipady=5, padx=20, sticky=SE)
+        GoItinerary.place(relx=0.98, rely=0.18, relwidth=0.175, relheight=0.05, y=10, anchor=SE)
 
         # creating the wrapper for treeview of Travelers
-        destTreeWrapper = tk.LabelFrame(self, text="Travelers")
-        destTreeWrapper.grid(row=1, column=1, padx=(5, 20), pady=(20, 5), sticky=NSEW)
-        # destTreeWrapper.columnconfigure(0, weight=1)
-        # destTreeWrapper.rowconfigure(0, weight=1)
+        travTreeWrapper = tk.LabelFrame(self, text="Travelers")
+        travTreeWrapper.place(relx=0.38, rely=0.2, relwidth=0.60, relheight=0.53, anchor=NW)
 
         # treeview of Travelers
-        travTreeFrame = tk.Frame(destTreeWrapper)
+        travTreeFrame = tk.Frame(travTreeWrapper)
         travTreeFrame.pack(fill='both', padx=20, pady=30)
 
         travTreeScroll = tk.Scrollbar(travTreeFrame)
@@ -787,12 +780,19 @@ class TripDetails(tk.Frame):
         travTree.heading("Address", text="Address", anchor="w")
 
         # packing treeview in travTree
-        travTree.pack(fill='both')
+        travTree.pack(fill='x')
         travTreeScroll.config(command=travTree.yview)
+
+        addTraveler = ttk.Button(travTreeWrapper, text="Add Traveler",
+                                 command=lambda: functions.addtriptrav(addTraveler, travTree, trackTrip, self))
+        removeTraveler = ttk.Button(travTreeWrapper, text="Remove Traveler", command=lambda: deletetrav())
+
+        addTraveler.place(relx=0.023, rely=0.95, relwidth=0.2, relheight=0.1, x=3, anchor=SW)
+        removeTraveler.place(relx=0.25, rely=0.95, relwidth=0.2, relheight=0.1, anchor=SW)
 
         # wrapper for trip details
         editWrapper = tk.LabelFrame(self, text="Trip Details")
-        editWrapper.grid(row=1, column=0, padx=(20, 5), pady=(20, 5), sticky=NSEW)
+        editWrapper.place(relx=0.02, rely=0.2, relwidth=0.35, relheight=0.53, anchor=NW)
 
         # configuring column in editWrapper
         editWrapper.columnconfigure(0, weight=1)
@@ -812,64 +812,58 @@ class TripDetails(tk.Frame):
         tb_notes = Text(editWrapper, width=30, height=6)  # height -> line numbers NOT pixels
 
         # placing the labels and entries in editWrapper
-        lab_name.grid(row=0, column=0, pady=(20, 0))
+        lab_name.grid(row=0, column=0, pady=(35,0))
         lab_std.grid(row=1, column=0)
         lab_etd.grid(row=2, column=0)
         lab_duration.grid(row=3, column=0)
         lab_notes.grid(row=4, column=0)
 
-        tb_name.grid(row=0, column=1, ipady=1, padx=(0, 20), pady=(20, 2), sticky=EW)
-        tb_start.grid(row=1, column=1, ipady=1, padx=(0, 20), pady=2, sticky=EW)
-        tb_end.grid(row=2, column=1, ipady=1, padx=(0, 20), pady=2, sticky=EW)
-        tb_duration.grid(row=3, column=1, ipady=1, padx=(0, 20), pady=2, sticky=EW)
-        tb_notes.grid(row=4, column=1, ipady=1, padx=(0, 20), pady=(2, 20), sticky=NSEW)
+        tb_name.grid(row=0, column=1, ipady=2, padx=(0,20), pady=(35,2), sticky=EW)
+        tb_start.grid(row=1, column=1, ipady=2, padx=(0,20), pady=2, sticky=EW)
+        tb_end.grid(row=2, column=1, ipady=2, padx=(0,20), pady=2, sticky=EW)
+        tb_duration.grid(row=3, column=1, ipady=2, padx=(0,20), pady=2, sticky=EW)
+        tb_notes.grid(row=4, column=1, ipady=2, padx=(0,20), pady=(2,20), sticky=NSEW)
 
         tripEditButton = ttk.Button(editWrapper, text="Update Trip", width=15,
                                     command=lambda: editOrDeleteEntry())
         tripDeleteButton = ttk.Button(editWrapper, text="Remove Trip", width=15,
                                       command=lambda: editOrDeleteEntry(TRUE))
 
-        tripEditButton.grid(row=5, column=0, ipady=3, padx=(20, 0), sticky=SW)
-        tripDeleteButton.grid(row=5, column=1, ipady=3, sticky=SW)
+        #tripEditButton.grid(row=5, column=0, ipady=3, padx=(20, 0), sticky=SW)
+        #tripDeleteButton.grid(row=5, column=1, ipady=3, sticky=SW)
+        tripEditButton.place(relx=0.04, rely=0.95, relwidth=0.35, relheight=0.1, anchor=SW)
+        tripDeleteButton.place(relx=0.43, rely=0.95, relwidth=0.35, relheight=0.1, anchor=SW)
 
         # -----TRAVELER DETAILS-----
-        travelerWrapper = tk.LabelFrame(self, text="Traveler Details")
-        travelerWrapper.grid(row=2, column=1, padx=(5, 20), pady=(5, 20), sticky=NSEW)
+        #travelerWrapper = tk.LabelFrame(self, text="Traveler Details")
+        #travelerWrapper.grid(row=2, column=1, padx=(5, 20), pady=(5, 20), sticky=NSEW)
 
         # travelerWrapper.rowconfigure(0, weight=1)
-        travelerWrapper.columnconfigure(0, weight=1)
-        travelerWrapper.columnconfigure(1, weight=1)
-        travelerWrapper.columnconfigure(2, weight=1)
+        #travelerWrapper.columnconfigure(0, weight=1)
+        #travelerWrapper.columnconfigure(1, weight=1)
+        #travelerWrapper.columnconfigure(2, weight=1)
 
         # traveler labels
-        nameTraveler = ttk.Label(travelerWrapper, text="Name")
-        ageTraveler = ttk.Label(travelerWrapper, text="Age")
-        genderTraveler = ttk.Label(travelerWrapper, text="Gender")
-        addressTraveler = ttk.Label(travelerWrapper, text="Address")
+        #nameTraveler = ttk.Label(travelerWrapper, text="Name")
+        #ageTraveler = ttk.Label(travelerWrapper, text="Age")
+        #genderTraveler = ttk.Label(travelerWrapper, text="Gender")
+        #addressTraveler = ttk.Label(travelerWrapper, text="Address")
 
-        nameTravelerEnt = ttk.Entry(travelerWrapper, width=30)
-        ageTravelerEnt = ttk.Entry(travelerWrapper, width=30)
-        genderTravelerEnt = ttk.Entry(travelerWrapper, width=30)
-        addressTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        #nameTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        #ageTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        #genderTravelerEnt = ttk.Entry(travelerWrapper, width=30)
+        #addressTravelerEnt = ttk.Entry(travelerWrapper, width=30)
 
-        nameTraveler.grid(row=0, column=0, pady=(30, 0))
-        ageTraveler.grid(row=1, column=0)
-        genderTraveler.grid(row=2, column=0)
-        addressTraveler.grid(row=3, column=0, pady=(0, 30))
+        #nameTraveler.grid(row=0, column=0, pady=(30, 0))
+        #ageTraveler.grid(row=1, column=0)
+        #genderTraveler.grid(row=2, column=0)
+        #addressTraveler.grid(row=3, column=0, pady=(0, 30))
 
-        nameTravelerEnt.grid(row=0, column=1, columnspan=2, padx=(0, 20), pady=(30, 2), sticky=EW)
-        ageTravelerEnt.grid(row=1, column=1, columnspan=2, padx=(0, 20), pady=2, sticky=EW)
-        genderTravelerEnt.grid(row=2, column=1, columnspan=2, padx=(0, 20), pady=2, sticky=EW)
-        addressTravelerEnt.grid(row=3, column=1, columnspan=2, padx=(0, 20), pady=(2, 30), sticky=EW)
+        #nameTravelerEnt.grid(row=0, column=1, columnspan=2, padx=(0, 20), pady=(30, 2), sticky=EW)
+        #ageTravelerEnt.grid(row=1, column=1, columnspan=2, padx=(0, 20), pady=2, sticky=EW)
+        #genderTravelerEnt.grid(row=2, column=1, columnspan=2, padx=(0, 20), pady=2, sticky=EW)
+        #addressTravelerEnt.grid(row=3, column=1, columnspan=2, padx=(0, 20), pady=(2, 30), sticky=EW)
 
-        addTraveler = ttk.Button(travelerWrapper, text="Add Traveler",
-                                 command=lambda: functions.addtriptrav(addTraveler, travTree, trackTrip, self))
-        updateTraveler = ttk.Button(travelerWrapper, text="Updated Traveler")
-        removeTraveler = ttk.Button(travelerWrapper, text="Remove Traveler", command=lambda: deletetrav())
-
-        addTraveler.grid(row=4, column=0, ipadx=10, ipady=3, padx=20, sticky=SW)
-        updateTraveler.grid(row=4, column=1, ipadx=10, ipady=3, sticky=SW)
-        removeTraveler.grid(row=4, column=2, ipadx=10, ipady=3, sticky=SW)
 
         # clearing entries per refresh
         tb_name.delete(0, END)
@@ -935,17 +929,17 @@ class TripDetails(tk.Frame):
                 conn.close()
                 messagebox.showinfo("Edit Trip", "Trip has been successfully updated.")
 
-        def onFocus():
-            nameTravelerEnt.delete(0, END)
-            ageTravelerEnt.delete(0, END)
-            genderTravelerEnt.delete(0, END)
-            addressTravelerEnt.delete(0, END)
-            selected = travTree.focus()
-            values = travTree.item(selected, 'values')
-            nameTravelerEnt.insert(0, values[1])
-            ageTravelerEnt.insert(0, values[2])
-            genderTravelerEnt.insert(0, values[3])
-            addressTravelerEnt.insert(0, values[4])
+        #def onFocus():
+            #nameTravelerEnt.delete(0, END)
+            #ageTravelerEnt.delete(0, END)
+            #genderTravelerEnt.delete(0, END)
+            #addressTravelerEnt.delete(0, END)
+            #selected = travTree.focus()
+            #values = travTree.item(selected, 'values')
+            #nameTravelerEnt.insert(0, values[1])
+            #ageTravelerEnt.insert(0, values[2])
+            #genderTravelerEnt.insert(0, values[3])
+            #addressTravelerEnt.insert(0, values[4])
 
         def deletetrav():
             result = messagebox.askquestion("Delete", "Are You Sure?", icon='warning')
