@@ -562,6 +562,7 @@ class Page3(tk.Frame):
         destadd.place(relx=0.02, rely=0.85, relheight=0.11, relwidth=0.2)
         destedit.place(relx=0.26, rely=0.85, relheight=0.11, relwidth=0.2)
         destdelete.place(relx=0.50, rely=0.85, relheight=0.11, relwidth=0.2)
+        destadd.config(state=DISABLED)
         destedit.config(state=DISABLED)
         destdelete.config(state=DISABLED)
 
@@ -584,6 +585,7 @@ class Page3(tk.Frame):
             values = my_tree.item(selected, 'values')
             button4.config(state=NORMAL)
             button5.config(state=NORMAL)
+            destadd.config(state=NORMAL)
             print(values)
             #
             trackItin = values[0]
