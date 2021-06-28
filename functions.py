@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import ttk, messagebox
 import sqlite3
 from tkcalendar import Calendar, DateEntry
+import re
 
 def getcenterX(num, window):
     finnum = (window.winfo_screenwidth() / 2) - (num / 2)
@@ -24,7 +25,7 @@ def filltree(my_tree, table, ID="", varlist="", searchlimiter=""):
         elif table == "Itinerary":
             data = conn.execute(f"SELECT * FROM {table} WHERE Trip_ID = {ID} ").fetchall()
         elif table == "Events":
-            data = conn.execute(f"SELECT * FROM {table} WHERE Itinerary_ID = {ID}").fetchall()
+            data = conn.execute(f"SELECT * FROM {table} WHERE Itinerary_ID = {ID} ORDER BY Start_DandT, End_DandT").fetchall()
         elif table == "Traveler_Trip":
             data = conn.execute(f"SELECT Traveler_Trip.TravTrip_ID, Traveler.Name, Traveler.Age, Traveler.Gender, Traveler.Address FROM {table} INNER JOIN Traveler ON Traveler_Trip.Traveler_ID=Traveler.Traveler_ID WHERE Traveler_Trip.Trip_ID = {ID}").fetchall()
     except:
@@ -271,6 +272,22 @@ def addEvent(button, my_tree, my_tree1, trackItin, self):
         t6 = tb_notes.get("1.0", 'end-1c')
         t7 = tb_expenses.get()
 
+        if len(t4) == 4:
+            t4 = '0' + t4
+
+        time = re.compile('^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])$')
+
+        money = re.compile(r'^\$?(\d*(\d\.?|\.\d{1,2}))$')
+        #if re.match(money, t7):
+
+        if not time.match(t4):
+            messagebox.showinfo(parent=addscreen, title="Time not in 24hour format", message="Time needs to be on a 24hour format, ex. 01:12, 13:40, 00:01")
+            return
+
+        if not money.match(t7):
+            messagebox.showinfo(parent=addscreen, title="Currency not in format", message="Expenses should not have commas, any text and only allows 2 maximum decimal values")
+            return
+
         if t1 == "" or t2 == "" or t3 == "" or t4 == "" or t5 == "" or t6 == "" or t7 == "":
             messagebox.showinfo(parent=addscreen, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
             return
@@ -307,7 +324,7 @@ def addEvent(button, my_tree, my_tree1, trackItin, self):
     lab_name = ttk.Label(addscreen, text="Name")
     lab_loc = ttk.Label(addscreen, text="Location")
     lab_std = ttk.Label(addscreen, text="Date")
-    lab_etd = ttk.Label(addscreen, text="Time")
+    lab_etd = ttk.Label(addscreen, text="Time (00:00 - 23:59")
     lab_type = ttk.Label(addscreen, text="Type")
     lab_notes = ttk.Label(addscreen, text="Notes")
     lab_expenses = ttk.Label(addscreen, text="Expenses")
@@ -324,7 +341,7 @@ def addEvent(button, my_tree, my_tree1, trackItin, self):
     lab_name.place(relx=0.21, rely=0.025, relheight=0.06, relwidth=0.1)
     lab_loc.place(relx=0.21, rely=0.085, relheight=0.06, relwidth=0.1)
     lab_std.place(relx=0.21, rely=0.145, relheight=0.06, relwidth=0.1)
-    lab_etd.place(relx=0.21, rely=0.205, relheight=0.06, relwidth=0.1)
+    lab_etd.place(relx=0.21, rely=0.205, relheight=0.06, relwidth=0.25)
     lab_type.place(relx=0.21, rely=0.265, relheight=0.06, relwidth=0.1)
     lab_notes.place(relx=0.21, rely=0.325, relheight=0.06, relwidth=0.1)
     lab_expenses.place(relx=0.21, rely=0.6, relheight=0.06, relwidth=0.1)
@@ -350,6 +367,23 @@ def editevent(button, my_tree, my_tree1, trackItin, self):
         t5 = tb_type.get()
         t6 = tb_notes.get("1.0", 'end-1c')
         t7 = tb_expenses.get()
+
+        if len(t4) == 4:
+            t4 ='0'+t4
+
+        time = re.compile('^(2[0-3]|[01]?[0-9]):([0-5]?[0-9])$')
+
+        money = re.compile(r'^\$?(\d*(\d\.?|\.\d{1,2}))$')
+        #if re.match(money, t7):
+
+        if not time.match(t4):
+            messagebox.showinfo(parent=addscreen, title="Time not in 24hour format", message="Time needs to be on a 24hour format, ex. 01:12, 13:40, 00:01")
+            return
+
+        if not money.match(t7):
+            messagebox.showinfo(parent=addscreen, title="Currency not in format", message="Expenses should not have commas, any text and only allows 2 maximum decimal values")
+            return
+
         if t1 == "":
             messagebox.showinfo(parent=addscreen, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
             return
