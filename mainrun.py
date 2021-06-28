@@ -151,7 +151,7 @@ class Page1(tk.Frame):
         button2.place(relx=0.01, rely=0.70, relheight=0.05, relwidth=0.2)
         button3.place(relx=0.01, rely=0.645, relheight=0.05, relwidth=0.2)
         button4.place(relx=0.98, rely=0.10, relheight=0.05, relwidth=0.15, x=-4, anchor=E)
-
+        button4.config(state=DISABLED)
         # Treeview
         # building tree view
         tree_frame = tk.Frame(self)
@@ -204,6 +204,9 @@ class Page1(tk.Frame):
         destedit = ttk.Button(wrapper2, text="Edit",
                               command=lambda: functions.editDestination(destedit, my_tree1, self))
         destdelete = ttk.Button(wrapper2, text="Delete", command=lambda: deleteDest())
+        destadd.config(state=DISABLED)
+        destedit.config(state=DISABLED)
+        destdelete.config(state=DISABLED)
 
         # lab_name = ttk.Label(wrapper1, text="Name")
         # lab_std = ttk.Label(wrapper1, text="Start Date")
@@ -245,6 +248,12 @@ class Page1(tk.Frame):
         my_tree1.pack(fill="x")
         tree_scroll.config(command=my_tree.yview)
         my_tree.bind('<<TreeviewSelect>>', lambda e: onFocus())
+        my_tree1.bind('<<TreeviewSelect>>', lambda e: onFocus1())
+
+        def onFocus1():
+            destadd.config(state=NORMAL)
+            destedit.config(state=NORMAL)
+            destdelete.config(state=NORMAL)
 
         def onFocus():
             # tb_name.delete(0, END)
@@ -256,6 +265,7 @@ class Page1(tk.Frame):
             # tb_notes.delete(1.0, END)
             selected = my_tree.focus()
             values = my_tree.item(selected, 'values')
+            button4.config(state=NORMAL)
 
             global trackTrip
             trackTrip = values[0]
@@ -402,9 +412,8 @@ class Page2(tk.Frame):
             t3 = genderTravelerEnt.get()
             t4 = addressTravelerEnt.get()
             if t1 == "" or t2 == "" or t3 == "" or t4 == "":
-                messagebox.showinfo(parent=self, title="Incomplete Information",
-                                    message="All textboxes need to be filled to complete the action")
-
+                messagebox.showinfo(parent=self, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
+                return
             conn = sqlite3.connect("tplanner.db")
             data = conn.execute(f"SELECT * FROM Traveler")
             for line in data:
@@ -479,9 +488,9 @@ class Page3(tk.Frame):
         button2 = ttk.Button(self, text="Return to Trip Details",
                              command=lambda: controller.show_frame(TripDetails))
         button3 = ttk.Button(self, text="Add Itinerary",
-                             command=lambda: functions.addItin(button3, my_tree, trackTrip, self))
+                             command=lambda: functions.addItin(button3, my_tree, trackTrip, self, button4, button5))
         button4 = ttk.Button(self, text="Edit Itinerary",
-                             command=lambda: functions.editItin(button4, my_tree, trackTrip, self))
+                             command=lambda: functions.editItin(button4, my_tree, trackTrip, self, button5))
         button5 = ttk.Button(self, text="Delete Itinerary",
                              command=lambda: deleteItin())
 
@@ -490,6 +499,8 @@ class Page3(tk.Frame):
         button3.place(relx=0.01, rely=0.55, relheight=0.05, relwidth=0.2)
         button4.place(relx=0.01, rely=0.61, relheight=0.05, relwidth=0.2)
         button5.place(relx=0.01, rely=0.67, relheight=0.05, relwidth=0.2)
+        button4.config(state=DISABLED)
+        button5.config(state=DISABLED)
         # Treeview
         # building tree view
         tree_frame = tk.Frame(self)
@@ -540,19 +551,27 @@ class Page3(tk.Frame):
 
         # destination edit and delete buttons
         destadd = ttk.Button(wrapper2, text="Add",
-                             command=lambda: functions.addEvent(destadd, my_tree, my_tree1, trackItin, self))
+                             command=lambda: functions.addEvent(destadd, my_tree, my_tree1, trackItin, self, destedit, destdelete))
         destedit = ttk.Button(wrapper2, text="Edit",
-                              command=lambda: functions.editevent(destedit, my_tree, my_tree1, trackItin, self))
+                              command=lambda: functions.editevent(destedit, my_tree, my_tree1, trackItin, self, destdelete))
         destdelete = ttk.Button(wrapper2, text="Delete", command=lambda: deleteEvent())
 
         destadd.place(relx=0.02, rely=0.85, relheight=0.11, relwidth=0.2)
         destedit.place(relx=0.26, rely=0.85, relheight=0.11, relwidth=0.2)
         destdelete.place(relx=0.50, rely=0.85, relheight=0.11, relwidth=0.2)
+        destedit.config(state=DISABLED)
+        destdelete.config(state=DISABLED)
+
         # Placing widgets
         my_tree.pack(fill="x")
         my_tree1.pack(fill="x")
         tree_scroll.config(command=my_tree.yview)
         my_tree.bind('<<TreeviewSelect>>', lambda e: onFocus())
+        my_tree1.bind('<<TreeviewSelect>>', lambda e: onFocus1())
+
+        def onFocus1():
+            destedit.config(state=NORMAL)
+            destdelete.config(state=NORMAL)
 
         def onFocus():
             global trackItin
@@ -560,6 +579,8 @@ class Page3(tk.Frame):
             # get info from selected
             selected = my_tree.focus()
             values = my_tree.item(selected, 'values')
+            button4.config(state=NORMAL)
+            button5.config(state=NORMAL)
             print(values)
             #
             trackItin = values[0]
@@ -577,6 +598,8 @@ class Page3(tk.Frame):
                 conn.close()
                 my_tree.delete(*my_tree.get_children())
                 functions.filltree(my_tree, "Itinerary", values[3])
+                button4.config(state=DISABLED)
+                button5.config(state=DISABLED)
             else:
                 return
 
@@ -591,7 +614,9 @@ class Page3(tk.Frame):
                 conn.commit()
                 conn.close()
                 my_tree1.delete(*my_tree1.get_children())
-                functions.filltree(my_tree, "Events", values[8])
+                functions.filltree(my_tree1, "Events", values[8])
+                destedit.config(state=DISABLED)
+                destdelete.config(state=DISABLED)
             else:
                 return
 
@@ -784,11 +809,12 @@ class TripDetails(tk.Frame):
         travTreeScroll.config(command=travTree.yview)
 
         addTraveler = ttk.Button(travTreeWrapper, text="Add Traveler",
-                                 command=lambda: functions.addtriptrav(addTraveler, travTree, trackTrip, self))
+                                 command=lambda: functions.addtriptrav(addTraveler, travTree, trackTrip, self, removeTraveler))
         removeTraveler = ttk.Button(travTreeWrapper, text="Remove Traveler", command=lambda: deletetrav())
 
         addTraveler.place(relx=0.023, rely=0.95, relwidth=0.2, relheight=0.1, x=3, anchor=SW)
         removeTraveler.place(relx=0.25, rely=0.95, relwidth=0.2, relheight=0.1, anchor=SW)
+        removeTraveler.config(state=DISABLED)
 
         # wrapper for trip details
         editWrapper = tk.LabelFrame(self, text="Trip Details")
@@ -891,6 +917,10 @@ class TripDetails(tk.Frame):
         except:
             print("")
         functions.filltree(travTree, "Traveler_Trip", trackTrip)
+        travTree.bind('<<TreeviewSelect>>', lambda e: onFocus())
+
+        def onFocus():
+            removeTraveler.config(state=NORMAL)
 
         # delete/edit function for trip details
         def editOrDeleteEntry(delete=FALSE):
@@ -951,6 +981,7 @@ class TripDetails(tk.Frame):
                 conn.commit()
                 conn.close()
                 functions.filltree(travTree, "Traveler_Trip", trackTrip)
+                removeTraveler.config(state=DISABLED)
             else:
                 return
 

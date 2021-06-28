@@ -15,6 +15,9 @@ def getcenterY(num, window):
 
 #universal for filltree, (treename, dbtable ---
 def filltree(my_tree, table, ID="", varlist="", searchlimiter=""):
+    #if varlist:
+    #    for button in varlist:
+    #        button.config(state=DISABLED)
     my_tree.delete(*my_tree.get_children())
     conn = sqlite3.connect("tplanner.db")
     try:
@@ -168,7 +171,7 @@ def editDestination(button, my_tree1, self):
 
 ##For Itinerary
 #Add new Trip Destination
-def addItin(button, my_tree, trackTrip, self):
+def addItin(button, my_tree, trackTrip, self, edit, delete):
     def on_close():
         button.configure(state="normal")
         addscreen.destroy()
@@ -189,6 +192,8 @@ def addItin(button, my_tree, trackTrip, self):
         conn.close()
         filltree(my_tree, "Itinerary", trackTrip)
         button.configure(state="normal")
+        edit.config(state=DISABLED)
+        delete.config(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)
@@ -210,9 +215,9 @@ def addItin(button, my_tree, trackTrip, self):
     add = ttk.Button(addscreen, text="Add", command=lambda: validate())
     add.place(relx=0.35, rely=0.85, relheight=0.1, relwidth=0.3)
 
-def editItin(button, my_tree1, trackTrip, self):
+def editItin(button, my_tree1, trackTrip, self, delete):
     def on_close():
-        button.configure(state="normal")
+        #button.configure(state="normal")
         addscreen.destroy()
 
     def edit():
@@ -232,7 +237,7 @@ def editItin(button, my_tree1, trackTrip, self):
         conn.commit()
         conn.close()
         filltree(my_tree1, "Itinerary", values[3])
-        button.configure(state="normal")
+        delete.config(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)
@@ -259,7 +264,7 @@ def editItin(button, my_tree1, trackTrip, self):
     add.place(relx=0.35, rely=0.85, relheight=0.1, relwidth=0.3)
 
 #Add new Event
-def addEvent(button, my_tree, my_tree1, trackItin, self):
+def addEvent(button, my_tree, my_tree1, trackItin, self, edit, delete):
     def on_close():
         button.configure(state="normal")
         addscreen.destroy()
@@ -308,6 +313,8 @@ def addEvent(button, my_tree, my_tree1, trackItin, self):
         conn.close()
         filltree(my_tree1, "Events", trackItin)
         button.configure(state="normal")
+        edit.config(state=DISABLED)
+        delete.config(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)
@@ -354,7 +361,7 @@ def addEvent(button, my_tree, my_tree1, trackItin, self):
     tb_notes.place(relx=0.41, rely=0.36, relheight=0.24, relwidth=0.4)
     tb_expenses.place(relx=0.41, rely=0.62, relheight=0.03, relwidth=0.4)
 
-def editevent(button, my_tree, my_tree1, trackItin, self):
+def editevent(button, my_tree, my_tree1, trackItin, self, delete):
     def on_close():
         button.configure(state="normal")
         addscreen.destroy()
@@ -409,7 +416,7 @@ def editevent(button, my_tree, my_tree1, trackItin, self):
         conn.commit()
         conn.close()
         filltree(my_tree1, "Events", trackItin)
-        button.configure(state="normal")
+        delete.config(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)
@@ -468,7 +475,7 @@ def editevent(button, my_tree, my_tree1, trackItin, self):
     tb_notes.insert(tk.END, values1[6])
     tb_expenses.insert(0, values1[7])
 
-def addtriptrav(button, my_tree, tracktrip, self):
+def addtriptrav(button, my_tree, tracktrip, self, removebutton):
     def on_close():
         button.configure(state="normal")
         addscreen.destroy()
@@ -492,6 +499,7 @@ def addtriptrav(button, my_tree, tracktrip, self):
         conn.close()
         filltree(my_tree, "Traveler_Trip", tracktrip)
         button.configure(state="normal")
+        removebutton.config(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)
