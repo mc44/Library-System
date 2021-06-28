@@ -605,6 +605,10 @@ class Page3(tk.Frame):
                 functions.filltree(my_tree, "Itinerary", values[3])
                 button4.config(state=DISABLED)
                 button5.config(state=DISABLED)
+                destadd.config(state=DISABLED)
+                destedit.config(state=DISABLED)
+                destdelete.config(state=DISABLED)
+                functions.filltree(my_tree1, "Events", "0")
             else:
                 return
 
