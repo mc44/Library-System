@@ -124,7 +124,7 @@ def addEntry(button, my_tree, my_tree1, self):
     add = ttk.Button(addscreen, text="Add", command=lambda: validate())
     add.place(relx=0.35, rely=0.6, relheight=0.25, relwidth=0.3)
 
-def editDestination(button, my_tree1, self):
+def editDestination(button, my_tree1, self, delete):
     def on_close():
         button.configure(state="normal")
         addscreen.destroy()
@@ -144,7 +144,7 @@ def editDestination(button, my_tree1, self):
         conn.commit()
         conn.close()
         filltree(my_tree1, "Trip_Destination", values[2])
-        button.configure(state="normal")
+        delete.configure(state=DISABLED)
         addscreen.destroy()
 
     addscreen = Toplevel(self)

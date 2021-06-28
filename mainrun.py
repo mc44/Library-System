@@ -202,7 +202,7 @@ class Page1(tk.Frame):
 
         destadd = ttk.Button(wrapper2, text="Add", command=lambda: functions.addEntry(destadd, my_tree, my_tree1, self))
         destedit = ttk.Button(wrapper2, text="Edit",
-                              command=lambda: functions.editDestination(destedit, my_tree1, self))
+                              command=lambda: functions.editDestination(destedit, my_tree1, self, destdelete))
         destdelete = ttk.Button(wrapper2, text="Delete", command=lambda: deleteDest())
         destadd.config(state=DISABLED)
         destedit.config(state=DISABLED)
@@ -266,6 +266,7 @@ class Page1(tk.Frame):
             selected = my_tree.focus()
             values = my_tree.item(selected, 'values')
             button4.config(state=NORMAL)
+            destadd.config(state=NORMAL)
 
             global trackTrip
             trackTrip = values[0]
@@ -295,6 +296,8 @@ class Page1(tk.Frame):
             conn.close()
             my_tree1.delete(*my_tree1.get_children())
             functions.filltree(my_tree1, "Trip_Destination", values[2])
+            destedit.config(state=DISABLED)
+            destdelete.config(state=DISABLED)
 
 
 # Travelers Screen
