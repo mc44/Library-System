@@ -415,7 +415,7 @@ class Page2(tk.Frame):
             t3 = genderTravelerEnt.get()
             t4 = addressTravelerEnt.get()
             if t1 == "" or t2 == "" or t3 == "" or t4 == "":
-                messagebox.showinfo(parent=self, title="Incomplete Information", message="All textboxes need to be filled to complete the action")
+                messagebox.showinfo(parent=self, title="Incomplete Information", message="Make sure to fill every information.")
                 return
             conn = sqlite3.connect("tplanner.db")
             data = conn.execute(f"SELECT * FROM Traveler")
